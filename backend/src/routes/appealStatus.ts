@@ -11,7 +11,7 @@ export function registerAppealStatusRoutes(app: express.Application): void {
             const topics = await getAppealStatues();
             res.json(topics);
         } catch (error) {
-            res.status(500).json({ error: 'Ошибка при получении тем обращений' });
+            res.status(500).json({ error: 'Ошибка при получении статусов обращений' });
         }
     });
 }

@@ -1,42 +1,82 @@
-import { Express } from 'express';
-import { appealToCancel, appealToCancelAllWork, appealToComplete, appealToWork, createAppeal, getAppeals } from '../models/appels.js';
+import express, { Request, Response } from 'express';
+import { appealToCancel, appealToCancelAllWork, appealToComplete, appealToWork, createAppeal, getAppealById, getAppeals } from '../models/appels.js';
 
-export function registerAppealRoutes(app: Express) {
-  app.post('/appeals', async (req, res) => {
-    const { topicId, message } = req.body;
+const router = express.Router();
 
-    const createdAppeal = await createAppeal({ topicId, message })
+export function registerAppealRoutes(app: express.Application):void {
+  app.use('/api/appeals', router);
 
-    res.json(createdAppeal);
+  router.post('/', async (req: Request, res: Response) => {
+    try {
+      const { topicId, message } = req.body;
+
+      const createdAppeal = await createAppeal({ topicId, message })
+
+      res.json(createdAppeal);
+    } catch (error) {
+      res.status(500).json({ error: 'Ошибка при отпарвки обращения' });
+    }
+
   });
 
-  app.post('/appeals/:id/work', async (req, res) => {
-    const id = Number(req.params.id);
-    await appealToWork(id);
-    res.sendStatus(200);
+  router.post('/:id/work', async (req: Request, res: Response) => {
+    try {
+      const id = Number(req.query.id);
+      await appealToWork(id);
+      res.sendStatus(200);
+    } catch (error) {
+      res.status(500).json({ error: 'Ошибка при переводе статуса обращения в статус "В работе"' });
+    }
+
   });
 
-  app.post('/appeals/:id/complete', async (req, res) => {
-    const id = Number(req.params.id);
-    const { resolution } = req.body;
-    await appealToComplete(id, resolution)
-    res.sendStatus(200);
+  router.post('/:id/complete', async (req: Request, res: Response) => {
+    try {
+      const id = Number(req.query.id);
+      const { resolution } = req.body;
+      await appealToComplete(id, resolution)
+      res.sendStatus(200);
+    } catch (error) {
+      res.status(500).json({ error: 'Ошибка при переводе статуса обращения в статус "Завершено"' });
+    }
   });
 
-  app.post('/appeals/:id/cancel', async (req, res) => {
-    const id = Number(req.params.id);
-    const { reason } = req.body;
-    await appealToCancel(id, reason)
-    res.sendStatus(200);
+  router.post('/:id/cancel', async (req: Request, res: Response) => {
+    try {
+      const id = Number(req.query.id);
+      const { reason } = req.body;
+      await appealToCancel(id, reason)
+      res.sendStatus(200);
+    } catch (error) {
+      res.status(500).json({ error: 'Ошибка при переводе статуса обращения в статус "Отменено"' });
+    }
   });
 
-  app.get('/appeals', async (req, res) => {
-    const data = await getAppeals()
+  router.get('/', async (req: Request, res: Response) => {
+    try {
+      const data = await getAppeals()
     res.json(data);
+    } catch (error) {
+      res.status(500).json({ error: 'Ошибка при получении обращений' });
+    }
   });
 
-  app.post('/appeals/cancel-all-in-progress', async (req, res) => {
-    await appealToCancelAllWork();
+  router.get('/:id', async (req: Request, res: Response) => {
+    try {
+      const id = Number(req.query.id);
+      const data = await getAppealById(id)
+    res.json(data);
+    } catch (error) {
+      res.status(500).json({ error: 'Ошибка при получении обращений' });
+    }
+  });
+
+  router.post('/cancel-all-in-progress', async (req: Request, res: Response) => {
+    try {
+      await appealToCancelAllWork();
     res.sendStatus(200);
+    } catch (error) {
+      res.status(500).json({ error: 'Ошибка при отклонении всех обращений в статусе "В работе"' });
+    }
   });
 }

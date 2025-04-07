@@ -1,10 +1,12 @@
-import { Appeal, PrismaClient } from '@prisma/client';
+import { Appeal, AppealMessage, AppealStatus, AppealTopic, PrismaClient } from '@prisma/client';
 import { prismaAppeal } from './prisma.js';
 
-type IAppealCreate = {
+export type IAppealCreate = {
     topicId: number;
     message: string
 }
+
+export type IAppealsReturn = Appeal & { AppealMessage: AppealMessage | null, AppealStatus: AppealStatus | null, AppealTopic: AppealTopic | null }
 
 /**
  * получение обращений
@@ -12,11 +14,36 @@ type IAppealCreate = {
  * @returns
  */
 export async function getAppeals(
-    prisma: PrismaClient = prismaAppeal): Promise<Appeal[]> {
+    prisma: PrismaClient = prismaAppeal): Promise<IAppealsReturn[]> {
     try {
         await prisma.$connect();
 
         const data = await prisma.appeal.findMany({
+            include: { AppealMessage: true, AppealStatus: true, AppealTopic: true },
+        })
+
+        return data
+    } catch (error) {
+        console.error(error);
+        throw error;
+    } finally {
+        await prisma.$disconnect();
+    }
+}
+
+/**
+ * получение обращений
+ * @param prisma
+ * @returns
+ */
+export async function getAppealById(
+    id: number,
+    prisma: PrismaClient = prismaAppeal): Promise<IAppealsReturn | null> {
+    try {
+        await prisma.$connect();
+
+        const data = await prisma.appeal.findUnique({
+            where: { appealId: id },
             include: { AppealMessage: true, AppealStatus: true, AppealTopic: true },
         })
 
