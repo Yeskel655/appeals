@@ -1,0 +1,57 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model AppealStatus {
+  appealStatusId   Int      @id @default(autoincrement()) @map("appeal_status_id")
+  appealStatusCypher String @map("appeal_status_cypher")
+  appealStatusDesc String @map("appeal_status_desc")
+  Appeals             Appeal[]
+  AppealMessages      AppealMessage[]
+
+  @@map("appeal_status")
+}
+
+model AppealTopic {
+  appealTopicId   Int      @id @default(autoincrement()) @map("appeal_topic_id")
+  appealTopicName String? @map("appeal_topic_name")
+  Appeals           Appeal[]
+
+  @@map("appeal_topic")
+}
+
+model AppealMessage {
+  appealMessageId Int            @id @default(autoincrement()) @map("appeal_message_id")
+  AppealStatus     AppealStatus? @relation(fields: [appealStatusId], references: [appealStatusId])
+  appealStatusId  Int? @map("appeal_status_id")
+  appealId         Int?           @unique @map("appeal_id")
+  Appeal            Appeal?        @relation("AppealToMessage")
+  appealMessage    String? @map("appeal_message")
+
+  createdAt        DateTime       @default(now()) @map("created_at")
+  updatedAt        DateTime?      @map("updated_at")
+
+  @@map("appeal_message")
+}
+
+model Appeal {
+  appealId         Int            @id @default(autoincrement()) @map("appeal_id")
+  AppealTopic      AppealTopic?   @relation(fields: [appealTopicId], references: [appealTopicId])
+  appealTopicId   Int? @map("appeal_topic_id")
+  AppealStatus     AppealStatus?  @relation(fields: [appealStatusId], references: [appealStatusId])
+  appealStatusId  Int? @map("appeal_status_id")
+  AppealMessage    AppealMessage? @relation("AppealToMessage", fields: [appealMessageId], references: [appealMessageId])
+  appealMessageId Int?           @unique @map("appeal_message_id")
+
+  createdAt        DateTime       @default(now()) @map("created_at")
+  updatedAt        DateTime?      @map("updated_at")
+
+  @@map("appeal")
+}
+
+
