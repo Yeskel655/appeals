@@ -118,7 +118,6 @@ export async function createAppeal(
  */
 export async function appealToWork(
     id: number,
-
     prisma: PrismaClient = prismaAppeal
 ): Promise<Appeal> {
     try {

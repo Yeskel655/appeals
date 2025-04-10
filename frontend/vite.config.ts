@@ -6,6 +6,6 @@ export default defineConfig({
   server: {
     proxy: {
       '/appeals': 'http://localhost:3001'
-    }
+    },
   }
 });

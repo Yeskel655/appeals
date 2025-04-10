@@ -7,7 +7,8 @@ export const appealsApiSlice = apiSlice.injectEndpoints({
       query: () => ({
         url: '/appeals',
         method: 'GET'
-      })
+      }),
+      providesTags:()=>[{type:"Appeals", id: 'LIST'}]
     }),
     createAppeal: builder.mutation<
       IAppealsReturn,
@@ -17,10 +18,11 @@ export const appealsApiSlice = apiSlice.injectEndpoints({
         url: '/appeals',
         method: 'POST',
         body: params,
-      })
+      }),
+      invalidatesTags: ()=>[{type: 'Appeals', id: 'LIST'}]
     })
   }),
 });
 
-export const { useGetAppealsQuery } = appealsApiSlice
+export const { useGetAppealsQuery, useCreateAppealMutation } = appealsApiSlice
 

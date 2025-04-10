@@ -21,7 +21,7 @@ export function registerAppealRoutes(app: express.Application):void {
 
   router.post('/:id/work', async (req: Request, res: Response) => {
     try {
-      const id = Number(req.query.id);
+      const id = Number(req.params.id);
       await appealToWork(id);
       res.sendStatus(200);
     } catch (error) {
@@ -32,7 +32,7 @@ export function registerAppealRoutes(app: express.Application):void {
 
   router.post('/:id/complete', async (req: Request, res: Response) => {
     try {
-      const id = Number(req.query.id);
+      const id = Number(req.params.id);
       const { resolution } = req.body;
       await appealToComplete(id, resolution)
       res.sendStatus(200);
@@ -43,7 +43,7 @@ export function registerAppealRoutes(app: express.Application):void {
 
   router.post('/:id/cancel', async (req: Request, res: Response) => {
     try {
-      const id = Number(req.query.id);
+      const id = Number(req.params.id);
       const { reason } = req.body;
       await appealToCancel(id, reason)
       res.sendStatus(200);
@@ -63,11 +63,11 @@ export function registerAppealRoutes(app: express.Application):void {
 
   router.get('/:id', async (req: Request, res: Response) => {
     try {
-      const id = Number(req.query.id);
+      const id = Number(req.params.id);
       const data = await getAppealById(id)
     res.json(data);
     } catch (error) {
-      res.status(500).json({ error: 'Ошибка при получении обращений' });
+      res.status(500).json({ error: 'Ошибка при получении обращения' });
     }
   });
 
